@@ -1,79 +1,62 @@
-
 async function loadJSONL(path){
-  const resp = await fetch(path, {cache:"no-store"});
-  if(!resp.ok) throw new Error(`fetch ${path} -> ${resp.status}`);
-  const txt = await resp.text();
+  const txt = await (await fetch(path, {cache:"no-store"})).text();
   return txt.trim().split(/\r?\n/).filter(Boolean).map(l => JSON.parse(l));
 }
 
-// helpers for multi-lang fields like {ja:{}, en:{}} or simple string
-function pickLang(obj, keys){
-  // try nested .en, then .ja, then raw
-  for(const k of keys){
-    const v = obj?.[k];
-    if(!v) continue;
-    if(typeof v === "string") return v;
-    if(typeof v === "object"){
-      if(v.en) return v.en;
-      if(v.ja) return v.ja;
-    }
-  }
+function pickLang(obj){
+  if(!obj) return "";
+  if(typeof obj === "string") return obj;
+  if(obj.en) return obj.en;
+  if(obj.ja) return obj.ja;
   return "";
 }
-function first(arr){ return Array.isArray(arr) && arr.length ? arr[0] : undefined; }
 
 function entryToPaper(obj){
-  const typ = obj?.insert?.type;
-  if(typ !== "published_papers") return null; // only papers
+  if(obj?.insert?.type !== "published_papers") return null;
+  const m = obj.merge || {};
 
-  const m = obj.merge ?? {};
+  const title   = pickLang(m.paper_title) || "(no title)";
+  const journal = pickLang(m.publication_name);
+  const date    = m.publication_date || "";
+  const year    = parseInt(date.slice(0,4) || "0", 10);
 
-  const title   = pickLang(m, ["paper_title", "title", "name"]) || "(no title)";
-  const journal = pickLang(m, ["publication_name"]) || "";
-  const ystr    = (m.publication_date || "").slice(0,4);
-  const year    = parseInt(ystr || "0", 10);
-
-  // authors: {en:[{name:""}], ja:[...]}
   let authors = "";
-  const a_en = m.authors?.en;
-  const a_ja = m.authors?.ja;
-  const a_any = Array.isArray(a_en) ? a_en : (Array.isArray(a_ja) ? a_ja : []);
-  if(a_any.length){
-    authors = a_any.map(x => x?.name).filter(Boolean).join(", ");
-  }
+  const a = m.authors?.en || m.authors?.ja || [];
+  if(Array.isArray(a)) authors = a.map(x=>x.name).join(", ");
 
-  // doi
-  let doi = "";
-  const doiList = m.identifiers?.doi;
-  if(Array.isArray(doiList) && doiList.length) doi = doiList[0];
+  const doi = Array.isArray(m.identifiers?.doi) ? m.identifiers.doi[0] : "";
+  const url = doi ? `https://doi.org/${doi}` : "";
 
-  // url fallback (see_also with label doi or first link)
-  let url = "";
-  const sa = m.see_also;
-  if(Array.isArray(sa) && sa.length){
-    const doiEntry = sa.find(x => x?.label === "doi" && x?.["@id"]);
-    url = (doiEntry && doiEntry["@id"]) || (sa[0] && sa[0]["@id"]) || "";
-  }
+  let line = "";
+  if(authors) line += authors + ". ";
+  line += `<b>${title}</b>.`;
+  if(journal) line += " " + journal;
+  if(date) line += " (" + date.slice(0,10) + ")";
+  if(doi) line += ` DOI: <a href="${url}" target="_blank">${doi}</a>`;
 
-  const right = [ystr, journal].filter(Boolean).join(" • ");
-  const link  = doi ? ` <a href="https://doi.org/${doi}" target="_blank" rel="noreferrer">doi:${doi}</a>`
-                    : (url ? ` <a href="${url}" target="_blank" rel="noreferrer">link</a>` : "");
-  const left  = [authors, `<b>${title}</b>`].filter(Boolean).join(". ");
-
-  return { year, html: `<li><div class="left">${left}</div><div class="right">${right}${link? " ·"+link:""}</div></li>` };
+  return {year, html: `<p>${line}</p>`};
 }
 
 (async ()=>{
   try{
-    // NOTE: file name is fixed here
     const recs = await loadJSONL("/data/rm_achievements.jsonl");
     const papers = recs.map(entryToPaper).filter(Boolean)
-                       .sort((a,b)=> (b.year|0)-(a.year|0));
+                       .sort((a,b)=> (b.year)-(a.year));
 
-    document.getElementById("pubs").innerHTML =
-      papers.length ? `<ol class="list">${papers.map(p=>p.html).join("\n")}</ol>`
-                    : "No publications found.";
+    // 年ごとにまとめる
+    const groups = {};
+    for(const p of papers){
+      groups[p.year] = groups[p.year] || [];
+      groups[p.year].push(p.html);
+    }
+
+    let out = "";
+    for(const year of Object.keys(groups).sort((a,b)=>b-a)){
+      out += `<h2>${year}</h2>\n${groups[year].join("\n")}\n<hr>`;
+    }
+
+    document.getElementById("pubs").innerHTML = out || "No publications.";
   }catch(e){
-    document.getElementById("pubs").textContent = "読み込みエラー: " + e.message;
+    document.getElementById("pubs").textContent = "Error: "+e.message;
   }
 })();
