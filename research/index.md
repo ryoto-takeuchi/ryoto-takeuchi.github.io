@@ -5,4 +5,4 @@ layout: default
 
 # Research
 - [Continuous ultracold atom supply](./continuous-source.md)
-- [Moving optical lattice & stabilization](./moving-lattice.md)
+- [Continuous guiding with magnetic guide](./mag_guide.md)
