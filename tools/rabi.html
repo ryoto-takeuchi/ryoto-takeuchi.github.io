@@ -4,19 +4,72 @@ layout: default
 ---
 
 <h1>Rabi frequency</h1>
-<p class="muted">Formula: Ω = Γ √( I / (2 I_sat) ). Enter Γ/2π in MHz, I and I_sat in mW/cm².</p>
+<p class="muted">Formula: Ω = Γ √( I / (2 I_sat) ). Enter Γ/2π in MHz, I and I_sat in mW/cm². You can also choose atom/transition presets.</p>
 
 <div class="card">
-  <label>Γ/2π [MHz] <input id="g" type="number" step="0.001" value="32"></label>
-  <label>I [mW/cm²] <input id="I" type="number" step="0.001" value="5"></label>
-  <label>I_sat [mW/cm²] <input id="Is" type="number" step="0.001" value="1.67"></label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+    <label>Atom<br><select id="atomSel"></select></label>
+    <label>Transition<br><select id="tranSel"></select></label>
+    <button id="applyPreset">Apply preset</button>
+  </div>
+  <hr>
+  <label>Γ/2π [MHz] <input id="g" type="number" step="0.000001" value="32"></label>
+  <label>I [mW/cm²] <input id="I" type="number" step="0.0001" value="5"></label>
+  <label>I_sat [mW/cm²] <input id="Is" type="number" step="0.000001" value="1.67"></label>
   <button id="run">Compute</button>
   <pre id="out" class="muted">Loading Python (Pyodide)…</pre>
 </div>
 
-<!-- 1) Load Pyodide as a module (robust on GitHub Pages) -->
 <script type="module">
   import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.mjs";
+
+  const state = { data: null };
+
+  function populateSelectors(){
+    const atomSel = document.getElementById('atomSel');
+    const tranSel = document.getElementById('tranSel');
+    atomSel.innerHTML = "";
+    state.data.atoms.forEach((a, idx)=>{
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = a.species;
+      atomSel.appendChild(opt);
+    });
+    updateTransitionOptions();
+    atomSel.onchange = updateTransitionOptions;
+    function updateTransitionOptions(){
+      const atom = state.data.atoms[parseInt(atomSel.value||0,10)] || state.data.atoms[0];
+      tranSel.innerHTML = "";
+      atom.transitions.forEach((t, j)=>{
+        const opt = document.createElement('option');
+        opt.value = j;
+        opt.textContent = t.label;
+        tranSel.appendChild(opt);
+      });
+    }
+  }
+
+  function wireApplyPreset(){
+    document.getElementById('applyPreset').onclick = ()=>{
+      const atomIdx = parseInt(document.getElementById('atomSel').value||0,10);
+      const tranIdx = parseInt(document.getElementById('tranSel').value||0,10);
+      const atom = state.data.atoms[atomIdx];
+      const t = atom.transitions[tranIdx];
+      if(!t) return;
+      document.getElementById('g').value = t.gamma_2pi_MHz;
+      document.getElementById('Is').value = t.Isat_mWcm2;
+    };
+  }
+
+  try {
+    const resp = await fetch("/tools/transitions.json", {cache:"no-store"});
+    state.data = await resp.json();
+    populateSelectors();
+    wireApplyPreset();
+  } catch (e) {
+    console.error("Preset load error:", e);
+  }
+
   try {
     const pyodide = await loadPyodide();
     window.__pyodide__ = pyodide;
@@ -30,7 +83,6 @@ layout: default
   }
 </script>
 
-<!-- 2) Wire up the button after Pyodide is ready -->
 <script>
   async function compute(){
     const out = document.getElementById('out');

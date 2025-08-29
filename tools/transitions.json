@@ -1,0 +1,32 @@
+{
+  "atoms": [
+    {
+      "species": "Sr-88",
+      "transitions": [
+        {
+          "id": "sr88_1S0-1P1_461nm",
+          "label": "1S0 1P1 (461 nm)",
+          "gamma_2pi_MHz": 32.0,
+          "Isat_mWcm2": 40.5
+        },
+        {
+          "id": "sr88_1S0-3P1_689nm",
+          "label": "1S0 3P1 (689 nm)",
+          "gamma_2pi_MHz": 0.0075,
+          "Isat_mWcm2": 0.003
+        }
+      ]
+    },
+    {
+      "species": "Rb-87",
+      "transitions": [
+        {
+          "id": "rb87_D2_780nm",
+          "label": "D2 (780 nm)",
+          "gamma_2pi_MHz": 6.0666,
+          "Isat_mWcm2": 1.67
+        }
+      ]
+    }
+  ]
+}
