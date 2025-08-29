@@ -1,8 +1,7 @@
 ---
-title: 計算ツール
+title: Tools
+layout: default
 ---
 
-{% include nav.html %}
-
-# 計算ツール
-- [ラビ周波数](./rabi.html)
+# Tools
+- [Rabi frequency](./rabi.html)

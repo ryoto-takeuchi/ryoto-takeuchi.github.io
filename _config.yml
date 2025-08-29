@@ -11,5 +11,7 @@ markdown: kramdown
 kramdown:
   input: GFM
 
+# Use our custom layouts/includes
 include:
   - _includes
+  - _layouts

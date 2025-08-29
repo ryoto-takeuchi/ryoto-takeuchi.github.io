@@ -1,11 +1,28 @@
 ---
 title: Home
+layout: default
 ---
 
-{% include nav.html %}
+<div class="hero">
+  <img src="/assets/profile.jpg" alt="Profile photo">
+  <div>
+    <h1>Ryoto Takeuchi</h1>
+    <p class="muted">Experimental AMO physicist — optical lattice clocks, continuous ultracold Sr sources, moving-lattice transport, ZDT stabilization.</p>
+    <p><a href="/achievements/">Publications</a> · <a href="/research/">Research</a> · <a href="/tools/">Tools</a></p>
+  </div>
+</div>
 
-# Ryoto Takeuchi
-光格子時計の実験研究をしています。ここでは研究紹介・業績・計算ツール・学習ノートを公開します。
-
-- 所属：…  
-- トピック：連続冷却・移動格子・ZDTクロック など
+<div class="cards">
+  <div class="card">
+    <h3>Current focus</h3>
+    <p>Continuous operation of optical lattice clocks via metastable-state cooling and moving lattices; magnetic-field-induced spectroscopy; real-time stabilization.</p>
+  </div>
+  <div class="card">
+    <h3>What’s inside</h3>
+    <ul>
+      <li><a href="/research/">Research overview</a></li>
+      <li><a href="/achievements/">Publications (auto from researchmap)</a></li>
+      <li><a href="/tools/">In-browser Python tools (Pyodide)</a></li>
+    </ul>
+  </div>
+</div>

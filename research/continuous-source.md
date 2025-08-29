@@ -1,3 +1,6 @@
-# 連続的な冷却原子供給
-
-内容を書く。
+---
+title: Continuous ultracold atom supply
+layout: default
+---
+# Continuous ultracold atom supply
+Write your content here.
