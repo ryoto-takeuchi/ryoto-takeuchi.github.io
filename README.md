@@ -1,1 +1,0 @@
-# ryoto-takeuchi.github.io
