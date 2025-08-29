@@ -8,7 +8,7 @@ permalink: /learning/
 
 Here I collect study notes, tutorials, and references.
 
-- [Optics](/learning/optics/)
-- [Atomic physics](/learning/atomic/)
+- [Optics](/learning/optics/index)
+- [Atomic physics](/learning/atomic/index)
 
 > Add more categories by creating folders under `_learning/`.
