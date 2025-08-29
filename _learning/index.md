@@ -1,6 +1,7 @@
 ---
 title: Learning
 layout: default
+permalink: /learning/
 ---
 
 # Learning
