@@ -44,7 +44,7 @@ layout: default
 from math import pi
 Omega = omega_from_gsat(${g}, ${I}, ${Is})
 Omega_2pi = Omega/(2*pi)
-result = 'Omega = {:.6e} rad/s\nOmega/2pi = {:.6f} Hz'.format(Omega, Omega_2pi)
+result = "Omega = {:.6e} rad/s\\nOmega/2pi = {:.6f} Hz".format(Omega, Omega_2pi)
 `;
       await pyodide.runPythonAsync(code);
       out.textContent = pyodide.globals.get('result');
