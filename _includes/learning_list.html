@@ -1,21 +1,17 @@
-{%- assign segs = page.url | split:'/' -%}
-{%- assign category = segs[2] -%}
+{% assign segs = page.url | split:'/' %}
+{% assign category = segs[2] %}
 
-{%- comment -%}
-learning コレクションの中から、URL が "/learning/<category>/" を含むものを取得
-かつ自分自身(index.md)は除外
-{%- endcomment -%}
-{%- assign prefix = "/learning/" | append: category | append: "/" -%}
-{%- assign items = site.learning | where_exp:"p","p.url contains prefix and p.name != 'index.md'" -%}
+{% assign prefix = "/learning/" | append: category | append: "/" %}
 
-{%- assign items = items | sort_natural:"title" -%}
+{% assign items = site.learning | where_exp:"p","p.url contains prefix and p.name != 'index.md'" %}
+{% assign items = items | sort_natural:"title" %}
 
-{%- if items and items.size > 0 -%}
+{% if items and items.size > 0 %}
 <ul>
-  {%- for p in items -%}
+  {% for p in items %}
     <li><a href="{{ p.url }}">{{ p.title | default: p.name | replace: ".md","" }}</a></li>
-  {%- endfor -%}
+  {% endfor %}
 </ul>
-{%- else -%}
+{% else %}
 <p class="muted">まだ項目がありません。</p>
-{%- endif -%}
+{% endif %}
