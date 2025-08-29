@@ -1,15 +1,17 @@
-{% assign segs = page.url | split:'/' %}
+{% assign segs = page.url | split: '/' %}
 {% assign category = segs[2] %}
+{% assign prefix = '/learning/' | append: category | append: '/' %}
 
-{% assign prefix = "/learning/" | append: category | append: "/" %}
+{% assign items = site.learning | where_exp: "p", "p.url contains prefix" %}
+{% assign items = items | reject: "name", "index.md" %}
+{% assign items = items | sort_natural: "title" %}
 
-{% assign items = site.learning | where_exp:"p","p.url contains prefix and p.name != 'index.md'" %}
-{% assign items = items | sort_natural:"title" %}
-
-{% if items and items.size > 0 %}
+{% if items.size > 0 %}
 <ul>
   {% for p in items %}
-    <li><a href="{{ p.url }}">{{ p.title | default: p.name | replace: ".md","" }}</a></li>
+    <li>
+      <a href="{{ p.url }}">{{ p.title | default: p.name | replace: '.md','' }}</a>
+    </li>
   {% endfor %}
 </ul>
 {% else %}
