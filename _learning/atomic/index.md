@@ -6,4 +6,4 @@ permalink: /learning/atomic/
 
 # Atomic physics
 
-Put atomic physics notes here.
+{% include learning_list.html %}

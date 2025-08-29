@@ -1,0 +1,25 @@
+{%- comment -%}
+現在ページの URL からカテゴリ名を推定し、そのカテゴリ直下の learning コレクションを列挙。
+例: /learning/optics/ → category = "optics"
+{%- endcomment -%}
+{%- assign segs = page.url | split:'/' -%}
+{%- assign category = segs[2] -%} {# 0:"", 1:"learning", 2:"optics", 3:"" #}
+
+{%- comment -%}カテゴリ直下にある md を抽出（index.md 自体は除外）{%- endcomment -%}
+{%- assign items = site.learning 
+  | where_exp:'p','p.path contains "/' | append: category | append: '/"'
+  | where_exp:'p','p.name != "index.md"' -%}
+
+{%- comment -%}タイトル優先で自然順ソート。無ければファイル名を表示用に使用。{%- endcomment -%}
+{%- assign items = items | sort_natural:'title' -%}
+
+{%- if items and items.size > 0 -%}
+<ul>
+  {%- for p in items -%}
+    {%- assign label = p.title | default: p.name | replace: '.md','' -%}
+    <li><a href="{{ p.url }}">{{ label }}</a></li>
+  {%- endfor -%}
+</ul>
+{%- else -%}
+<p class="muted">まだ項目がありません。</p>
+{%- endif -%}
