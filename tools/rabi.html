@@ -1,0 +1,43 @@
+<!doctype html><meta charset="utf-8">
+<title>ラビ周波数</title>
+<link rel="stylesheet" href="/assets/style.css">
+<body>
+{% include nav.html %}
+<h1>ラビ周波数</h1>
+
+<label>Γ/2π [MHz] <input id="g" type="number" step="0.001" value="32"></label>
+<label>I [mW/cm²] <input id="I" type="number" step="0.001" value="5"></label>
+<label>I_sat [mW/cm²] <input id="Is" type="number" step="0.001" value="1.67"></label>
+<button id="run">計算</button>
+
+<pre id="out">loading Pyodide…</pre>
+
+<script>
+async function main(){
+  const { loadPyodide } = await import("https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.mjs");
+  const pyodide = await loadPyodide();
+  const common = await (await fetch("/tools/common.py", {cache:"no-store"})).text();
+  await pyodide.runPythonAsync(common);
+
+  const runBtn = document.getElementById('run');
+  const out = document.getElementById('out');
+  out.textContent = "Ready.";
+
+  runBtn.onclick = async ()=>{
+    const g  = parseFloat(document.getElementById('g').value);
+    const I  = parseFloat(document.getElementById('I').value);
+    const Is = parseFloat(document.getElementById('Is').value);
+
+    const code = `
+from math import pi
+Omega = omega_from_gsat(${g}, ${I}, ${Is})
+Omega_2pi = Omega/(2*pi)
+result = f"Ω = {Omega:.6e} rad/s\\nΩ/2π = {Omega_2pi:.6f} Hz"
+`;
+    await pyodide.runPythonAsync(code);
+    out.textContent = pyodide.globals.get('result');
+  };
+}
+main();
+</script>
+</body>

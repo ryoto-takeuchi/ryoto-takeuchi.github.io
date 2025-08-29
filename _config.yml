@@ -1,0 +1,15 @@
+title: "Ryoto Takeuchi"
+theme: minima
+plugins: []
+
+collections:
+  learning:
+    output: true
+    permalink: /learning/:path/
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+include:
+  - _includes
